@@ -5,6 +5,7 @@ using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
 using Platformer.Model;
 using Platformer.Core;
+using Project.Utils;
 
 namespace Platformer.Mechanics
 {
@@ -40,6 +41,13 @@ namespace Platformer.Mechanics
         internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
 
+        [SerializeField]
+        private JoystickUI joystick;
+        private float inputX = 0f;
+        private float inputZ = 0f;
+
+        private bool executeJump = false;
+
         public Bounds Bounds => collider2d.bounds;
 
         void Awake()
@@ -53,9 +61,12 @@ namespace Platformer.Mechanics
 
         protected override void Update()
         {
+            inputX = joystick.InputHorizontal;
+            inputZ = joystick.InputVertical;
+
             if (controlEnabled)
             {
-                move.x = Input.GetAxis("Horizontal");
+                move.x = inputX; // Input.GetAxis("Horizontal");
                 if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump"))
                     jumpState = JumpState.PrepareToJump;
                 else if (Input.GetButtonUp("Jump"))
@@ -70,6 +81,13 @@ namespace Platformer.Mechanics
             }
             UpdateJumpState();
             base.Update();
+
+            executeJump = false;
+        }
+
+        public void JumpClicked()
+        {
+            executeJump = true;
         }
 
         void UpdateJumpState()
